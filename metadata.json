@@ -1,0 +1,5 @@
+{
+  "name": "Copy of IA Capto Acessor Financeiro",
+  "description": "Envie a imagem de um gráfico financeiro e obtenha uma análise especializada por IA, completa com identificação de padrões de candlestick e um resumo técnico. Você também pode ouvir a análise com conversão de texto em fala.",
+  "requestFramePermissions": []
+}

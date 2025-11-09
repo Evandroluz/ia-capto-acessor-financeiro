@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IA Capto Acessor Financeiro | iacapto.com.br</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.28.0",
+    "cors": "https://aistudiocdn.com/cors@^2.8.5",
+    "express": "https://aistudiocdn.com/express@^5.1.0",
+    "stripe": "https://aistudiocdn.com/stripe@^19.3.0"
+  }
+}
+</script>
+<style>
+  @keyframes pulse-green {
+    0%, 100% { text-shadow: 0 0 2px rgba(74, 222, 128, 0.4); }
+    50% { text-shadow: 0 0 10px rgba(74, 222, 128, 0.9); }
+  }
+  .animate-pulse-green {
+    animation: pulse-green 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes pulse-red {
+    0%, 100% { text-shadow: 0 0 2px rgba(248, 113, 113, 0.4); }
+    50% { text-shadow: 0 0 10px rgba(248, 113, 113, 0.9); }
+  }
+  .animate-pulse-red {
+    animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+</style>
+</head>
+  <body class="bg-gray-900 text-gray-100">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
