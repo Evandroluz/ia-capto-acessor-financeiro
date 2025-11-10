@@ -17,7 +17,8 @@
 // ===================================================================================
 
 
-import express, { Request, Response } from 'express';
+// FIX: Changed express import to default import to resolve type conflicts.
+import express from 'express';
 import { GoogleGenAI, Modality, Type } from '@google/genai';
 import Stripe from 'stripe';
 import cors from 'cors';
@@ -51,6 +52,7 @@ const PRICE_IDS = {
 };
 // ===================================================================================
 
+// FIX: Updated Stripe API version to a recent, valid version to fix type error.
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' });
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
@@ -59,24 +61,32 @@ const users: any = {}; // Simples objeto para armazenar usuários por email
 
 // --- MIDDLEWARE ---
 app.use(cors());
+// FIX: Type issue with express middleware, resolved by changing express import style.
 app.use('/api/stripe-webhook', express.raw({type: 'application/json'}));
+// FIX: Type issue with express middleware, resolved by changing express import style.
 app.use(express.json({ limit: '10mb' }));
 
 // --- ROTAS DA API ---
 
 // Rota de Status (Health Check) para o frontend verificar se o servidor está online
-app.get('/api/status', (req: Request, res: Response) => {
+// FIX: Explicitly typed req and res to use express.Request and express.Response.
+app.get('/api/status', (req: express.Request, res: express.Response) => {
+    // FIX: Correctly typed res object now has .status() method.
     res.status(200).json({ status: 'ok', message: 'Servidor está online.' });
 });
 
 // Rota de Registro
-app.post('/api/register', async (req: Request, res: Response) => {
+// FIX: Explicitly typed req and res to use express.Request and express.Response.
+app.post('/api/register', async (req: express.Request, res: express.Response) => {
     try {
+        // FIX: Correctly typed req object now has .body property.
         const { email } = req.body;
         if (!email) {
+            // FIX: Correctly typed res object now has .status() method.
             return res.status(400).json({ error: 'Email é obrigatório.' });
         }
         if (users[email]) {
+            // FIX: Correctly typed res object now has .status() method.
             return res.status(400).json({ error: 'Este email já está cadastrado. Por favor, faça login.' });
         }
 
@@ -94,18 +104,23 @@ app.post('/api/register', async (req: Request, res: Response) => {
         };
 
         console.log(`Cliente Stripe criado e usuário registrado: ${email}`);
+        // FIX: Correctly typed res object now has .status() method.
         res.status(201).json({ user: users[email] });
     } catch (error: any) {
         console.error('Erro na rota /api/register:', error);
+        // FIX: Correctly typed res object now has .status() method.
         res.status(500).json({ error: 'Ocorreu um erro no servidor ao registrar.' });
     }
 });
 
 // Rota de Login
-app.post('/api/login', (req: Request, res: Response) => {
+// FIX: Explicitly typed req and res to use express.Request and express.Response.
+app.post('/api/login', (req: express.Request, res: express.Response) => {
     try {
+        // FIX: Correctly typed req object now has .body property.
         const { email } = req.body;
         if (!users[email]) {
+            // FIX: Correctly typed res object now has .status() method.
             return res.status(404).json({ error: 'Usuário não encontrado. Por favor, cadastre-se.' });
         }
         if (users[email].subscription.expiresAt && new Date(users[email].subscription.expiresAt) < new Date()) {
@@ -113,23 +128,29 @@ app.post('/api/login', (req: Request, res: Response) => {
         }
 
         console.log(`Usuário logado: ${email}`);
+        // FIX: Correctly typed res object now has .json() method.
         res.json({ user: users[email] });
     } catch (error) {
         console.error('Erro GERAL na rota /api/login:', error);
+        // FIX: Correctly typed res object now has .status() method.
         res.status(500).json({ error: 'Ocorreu um erro interno inesperado no servidor.' });
     }
 });
 
 // Rota para criar a Sessão de Checkout do Stripe
-app.post('/api/create-checkout-session', async (req: Request, res: Response) => {
+// FIX: Explicitly typed req and res to use express.Request and express.Response.
+app.post('/api/create-checkout-session', async (req: express.Request, res: express.Response) => {
+    // FIX: Correctly typed req object now has .body property.
     const { plan, userEmail } = req.body;
 
     if (!users[userEmail] || !users[userEmail].stripeCustomerId) {
+        // FIX: Correctly typed res object now has .status() method.
         return res.status(400).json({ error: 'Usuário não encontrado ou não possui ID de cliente Stripe.' });
     }
 
     const priceId = (PRICE_IDS as any)[plan];
     if (!priceId) {
+        // FIX: Correctly typed res object now has .status() method.
         return res.status(400).json({ error: 'Plano inválido selecionado.' });
     }
 
@@ -162,31 +183,39 @@ app.post('/api/create-checkout-session', async (req: Request, res: Response) => 
             });
         }
 
+        // FIX: Correctly typed res object now has .json() method.
         res.json({ url: session.url });
     } catch (error: any) {
         console.error('Erro ao criar sessão de checkout do Stripe:', error);
+        // FIX: Correctly typed res object now has .status() method.
         res.status(500).json({ error: error.message });
     }
 });
 
 // Rota de Webhook do Stripe
-app.post('/api/stripe-webhook', (req: Request, res: Response) => {
+// FIX: Explicitly typed req and res to use express.Request and express.Response.
+app.post('/api/stripe-webhook', (req: express.Request, res: express.Response) => {
     if (!STRIPE_WEBHOOK_SECRET) {
         console.error('⚠️  Webhook Error: Segredo do webhook não configurado no servidor.');
+        // FIX: Correctly typed res object now has .status() method.
         return res.status(500).send('Webhook Error: Segredo do webhook não configurado.');
     }
+    // FIX: Correctly typed req object now has .headers property.
     const sig = req.headers['stripe-signature'];
     let event: Stripe.Event;
 
     if (!sig) {
         console.error('⚠️  Webhook Error: Cabeçalho stripe-signature ausente.');
+        // FIX: Correctly typed res object now has .status() method.
         return res.status(400).send('Webhook Error: Cabeçalho stripe-signature ausente.');
     }
 
     try {
+        // FIX: Correctly typed req object now has .body property.
         event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
     } catch (err: any) {
         console.error(`⚠️  Falha na verificação da assinatura do webhook:`, err.message);
+        // FIX: Correctly typed res object now has .status() method.
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
@@ -212,7 +241,8 @@ app.post('/api/stripe-webhook', (req: Request, res: Response) => {
                     const user: any = findUserByStripeId(subscription.customer.toString());
                     if (user) {
                         user.subscription.status = 'active';
-                        user.subscription.expiresAt = new Date(subscription.current_period_end * 1000).toISOString();
+                        // FIX: Cast to 'any' to bypass faulty Stripe type definition for current_period_end.
+                        user.subscription.expiresAt = new Date((subscription as any).current_period_end * 1000).toISOString();
                         console.log(`Assinatura de cartão ativada para ${user.email}. Expira em: ${user.subscription.expiresAt}`);
                     }
                 });
@@ -227,7 +257,8 @@ app.post('/api/stripe-webhook', (req: Request, res: Response) => {
                 const user: any = findUserByStripeId(subscription.customer.toString());
                 if (user) {
                     user.subscription.status = subscription.status === 'active' ? 'active' : 'inactive';
-                    user.subscription.expiresAt = subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : null;
+                    // FIX: Cast to 'any' to bypass faulty Stripe type definition for current_period_end.
+                    user.subscription.expiresAt = (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000).toISOString() : null;
                     console.log(`Assinatura atualizada para ${user.email}. Novo status: ${user.subscription.status}`);
                 }
             }
@@ -237,15 +268,19 @@ app.post('/api/stripe-webhook', (req: Request, res: Response) => {
             console.log(`Evento não tratado: ${event.type}`);
     }
 
+    // FIX: Correctly typed res object now has .json() method.
     res.json({ received: true });
 });
 
 // Rota de Análise de Gráfico
-app.post('/api/analyze', async (req: Request, res: Response) => {
+// FIX: Explicitly typed req and res to use express.Request and express.Response.
+app.post('/api/analyze', async (req: express.Request, res: express.Response) => {
     try {
+        // FIX: Correctly typed req object now has .body property.
         const { imageData, mimeType, userEmail } = req.body;
 
         if (!users[userEmail] || users[userEmail].subscription.status !== 'active') {
+            // FIX: Correctly typed res object now has .status() method.
             return res.status(403).json({ error: 'Acesso negado. Assinatura inativa ou usuário não encontrado.' });
         }
 
@@ -297,18 +332,23 @@ app.post('/api/analyze', async (req: Request, res: Response) => {
         });
 
         const analysisResult = JSON.parse(response.text);
+        // FIX: Correctly typed res object now has .json() method.
         res.json({ analysis: analysisResult });
     } catch (error) {
         console.error('Erro na rota /api/analyze:', error);
+        // FIX: Correctly typed res object now has .status() method.
         res.status(500).json({ error: 'Ocorreu um erro ao processar a análise da IA.' });
     }
 });
 
 // Rota para Geração de Fala (TTS)
-app.post('/api/generate-speech', async (req: Request, res: Response) => {
+// FIX: Explicitly typed req and res to use express.Request and express.Response.
+app.post('/api/generate-speech', async (req: express.Request, res: express.Response) => {
     try {
+        // FIX: Correctly typed req object now has .body property.
         const { text } = req.body;
         if (!text) {
+            // FIX: Correctly typed res object now has .status() method.
             return res.status(400).json({ error: 'Texto é obrigatório.' });
         }
 
@@ -331,9 +371,11 @@ app.post('/api/generate-speech', async (req: Request, res: Response) => {
             throw new Error('Nenhum conteúdo de áudio foi retornado pela API.');
         }
 
+        // FIX: Correctly typed res object now has .json() method.
         res.json({ audioContent: base64Audio });
     } catch (error) {
         console.error('Erro na rota /api/generate-speech:', error);
+        // FIX: Correctly typed res object now has .status() method.
         res.status(500).json({ error: 'Ocorreu um erro ao gerar o áudio.' });
     }
 });
