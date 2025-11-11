@@ -46,9 +46,9 @@ if (!STRIPE_SECRET_KEY || !GEMINI_API_KEY || !STRIPE_WEBHOOK_SECRET || !WEBAPP_U
 // IDs de Preço - Estes podem ser os mesmos para teste e produção,
 // mas certifique-se de que eles existem em ambos os modos no seu painel Stripe.
 const PRICE_IDS = {
-    pix_semanal: 'price_1SRJF3FkcJq2kyKuDYM9RY0g',
-    mensal: 'price_1SRJJZFkcJq2kyKuy5H4luf3',
-    anual: 'price_1SRJKgFkcJq2kyKupMYiqHVp',
+    pix_semanal: 'price_1SSMGOGk13XXotWJAgpiCzIz',
+    mensal: 'price_1SSMHCGk13XXotWJTR0oUtSM',
+    anual: 'price_1SSMI8Gk13XXotWJ0Iq1GQEP',
 };
 // ===================================================================================
 
